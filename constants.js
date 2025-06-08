@@ -1,4 +1,3 @@
-
 const path = require('path');
 const os = require('os');
 
@@ -23,6 +22,8 @@ const KeyAndApi = {
 
     serverFile: "\\\\192.168.1.240\\in",
     serverFolder: path.join(os.homedir(), 'Desktop', "ServerFile"),
+
+    ngrokToken: '2yDyF3poD5a55lUrTNmXYb9F45i_3mwchzrrcfcWY5xSZNxCV',
 
 };
 

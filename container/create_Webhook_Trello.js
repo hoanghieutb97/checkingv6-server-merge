@@ -1,49 +1,82 @@
 const axios = require('axios');
 const { KeyAndApi } = require('../constants');
+const ngrok = require('ngrok');
+
+async function getExistingWebhooks() {
+    try {
+        const response = await axios.get(
+            `https://api.trello.com/1/tokens/${KeyAndApi.token}/webhooks`,
+            {
+                params: {
+                    key: KeyAndApi.apiKey
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error getting webhooks:', error.response ? error.response.data : error);
+        return [];
+    }
+}
+
+async function deleteWebhook(webhookId) {
+    try {
+        await axios.delete(
+            `https://api.trello.com/1/webhooks/${webhookId}`,
+            {
+                params: {
+                    key: KeyAndApi.apiKey,
+                    token: KeyAndApi.token
+                }
+            }
+        );
+        console.log(`Deleted webhook: ${webhookId}`);
+    } catch (error) {
+        console.error('Error deleting webhook:', error.response ? error.response.data : error);
+    }
+}
 
 async function create_Webhook_Trello() {
+    try {
+        // Kiểm tra webhook hiện có
+        const existingWebhooks = await getExistingWebhooks();
+        console.log('Existing webhooks:***********************');
 
-    const apiKey = KeyAndApi.apiKey;
-    const tokenX = KeyAndApi.token;
-    const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
-    const idModel = KeyAndApi.startList;
-    const url_list_hook_trello = `https://api.trello.com/1/tokens/${tokenX}/webhooks?key=${apiKey}&token=${tokenX}`;
-    const paramsCreateWebhook = {
-        key: apiKey,
-        token: tokenX,
-        callbackURL: callbackURL,
-        idModel: idModel,
-
-    };
-
-    ///////////// kiểm tra tồn tại webhook cũ thì xóa đi
-    await axios.get(url_list_hook_trello).then(async response => {
-        for (let k = 0; k < response.data.length; k++) {
-            if (response.data[k].idModel == idModel) {
-                var urlhehe = `https://api.trello.com/1/webhooks/${response.data[k].id}?key=${apiKey}&token=${tokenX}`;
-                await axios.delete(urlhehe)
-                    .then(response => {
-                        console.log('Webhook deleted successfully***************');
-                    })
-                    .catch(error => {
-                        console.error('Error deleting webhook:', error);
-                    });
-            }
+        // Xóa các webhook cũ nếu có
+        for (const webhook of existingWebhooks) {
+            await deleteWebhook(webhook.id);
         }
 
-    }).catch(error => {
-        console.error('Error making GET request:', error);
-    });
+        // Chọn một trong hai cách dưới đây bằng cách comment/uncomment
+        // Cách 1: Dùng IP cố định (máy cũ)
+        // const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
 
-
-    //tạo webhook trello mới
-    await axios.post("https://api.trello.com/1/webhooks", paramsCreateWebhook)
-        .then(response => {
-            console.log('Webhook Created:***********************');
-        })
-        .catch(error => {
-            console.error('Error Creating Webhook///////////////////////:', error.response.data);
+        // Cách 2: Dùng ngrok (máy mới)
+        const url = await ngrok.connect({
+            addr: KeyAndApi.port,
+            authtoken: KeyAndApi.ngrokToken
         });
+        const callbackURL = `${url}/webhook/trello`;
+        console.log('Ngrok URL:', url);
+
+        console.log('Webhook URL:', callbackURL);
+
+        const response = await axios.post(
+            `https://api.trello.com/1/webhooks/`,
+            {
+                key: KeyAndApi.apiKey,
+                token: KeyAndApi.token,
+                callbackURL: callbackURL,
+                idModel: KeyAndApi.activeBoard
+            }
+        );
+
+        console.log('Webhook created:***********************');
+        return response.data;
+    } catch (error) {
+        console.error('Error creating webhook:', error.response ? error.response.data : error);
+        throw error;
+    }
 }
 
 module.exports = create_Webhook_Trello;

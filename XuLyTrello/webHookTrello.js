@@ -1,5 +1,3 @@
-
-
 // //////////////////////////////////////////////////////////////////////////
 const axios = require('axios');
 const path = require('path');
@@ -13,82 +11,65 @@ const moveToListError = require('./moveToListError');
 const fs = require('fs').promises;
 const { KeyAndApi } = require('./../constants');
 const checkAwaitPhotoshop = require('./../fetchClient/checkAwaitPhotoshop');
+
 function webHookTrello(data, statusImageDate) {
+    // Cập nhật với thông tin API Key, Token và URL đính kèm cụ thể
+    const apiKey = KeyAndApi.apiKey;
+    const token = KeyAndApi.token;
+    const attachmentUrl = data.url;
+    const directoryPath = KeyAndApi.filePath;
 
-    {  // Cập nhật với thông tin API Key, Token và URL đính kèm cụ thể
-        const apiKey = KeyAndApi.apiKey;
-        const token = KeyAndApi.token;
-        const attachmentUrl = data.url;
+    // Thiết lập header cho request
+    const headers = {
+        "Authorization": `OAuth oauth_consumer_key="${apiKey}", oauth_token="${token}"`
+    };
 
-        // Thiết lập header cho request
-        const headers = {
-            "Authorization": `OAuth oauth_consumer_key="${apiKey}", oauth_token="${token}"`
-        };
-        const directoryPath = KeyAndApi.filePath;
-        // Thực hiện GET request để tải file
-
-        fetch(attachmentUrl, { headers: headers })
-            .then(response => {
-                // Kiểm tra nếu response không thành công
-                if (!response.ok) {
-                    throw new Error(`Error! status: ${response.status}`);
-                }
-                return response.buffer();
-            })
-            .then(buffer => {
-                const fileName = attachmentUrl.split('/').pop();  // Lấy tên file từ URL
-                const filePath = path.join(directoryPath, fileName); // Tạo đường dẫn đầy đủ
-                return fs.writeFile(filePath, buffer).then(() => {
-                    console.log(`Đã tải và lưu attachment: ${filePath}`);
-                    return filePath; // Trả lại đường dẫn file cho chuỗi promise tiếp theo
-                });
-
-
-
-
-            })
-            .then(filePath => {
-                // Sau khi ghi file hoàn tất, gọi InPutexcel
-
-                return InPutexcel(filePath);
-
-            }).then(JSONFILE => {
-                // console.trace(JSONFILE.value.items);
-                console.log("Trang thai chay tool: ", JSONFILE.stt);
-                if (JSONFILE.stt == 1) {
-                    data = { ...data, json: JSONFILE.value, state: "awaitReady" }
-
-                    listTrello = [...listTrello, data];
-
-
-                    for (let i = 0; i < listIP.length; i++) {
-                        if (listIP[i].state == "awaitReady") {
-                            listIP[i].state == "busy";
-                            checkAwaitPhotoshop(listIP[i].ip[0]);
-
-
-                            break;
-                        }
-                    }
-                        
-                }
-                else if (JSONFILE.stt == 0) { //file json không đảm bảo thì kéo sang lỗi
-
-                    tachState(JSONFILE.value.items, data.cardId, data.nameCard);
-
-                }
-                else if (JSONFILE.stt == 2) { //file json không đảm bảo thì kéo sang lỗi
-                    // addLabel_SheetFail(data.cardId);
-                    moveToListError(data.cardId);
-
-                }
-                addComment(data, JSONFILE);
-                if (statusImageDate) addDateImage(data.cardId, JSONFILE.value.items);
+    // Thực hiện GET request để tải file
+    fetch(attachmentUrl, { headers: headers })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error! status: ${response.status}`);
             }
-            )
-            .catch(err => console.log('Có lỗi:', err));
+            return response.buffer();
+        })
+        .then(buffer => {
+            const fileName = attachmentUrl.split('/').pop();
+            const filePath = path.join(directoryPath, fileName);
+            return fs.writeFile(filePath, buffer).then(() => {
+                console.log(`Đã tải và lưu attachment: ${filePath}`);
+                return filePath;
+            });
+        })
+        .then(filePath => {
+            return InPutexcel(filePath);
+        })
+        .then(JSONFILE => {
+            console.log("Trang thai chay tool: ", JSONFILE.stt);
+            
+            if (JSONFILE.stt == 1) {
+                // Thêm card mới vào global.listTrello
+                if (!global.listTrello) global.listTrello = [];
+                const newCard = { 
+                    ...data, 
+                    json: JSONFILE.value, 
+                    state: "awaitReady" 
+                };
+                global.listTrello.push(newCard);
+                console.log(`Đã thêm card ${data.cardId} vào hàng chờ`);
+            }
+            else if (JSONFILE.stt == 0) {
+                tachState(JSONFILE.value.items, data.cardId, data.nameCard);
+            }
+            else if (JSONFILE.stt == 2) {
+                moveToListError(data.cardId);
+            }
 
-    }
-    return true
+            addComment(data, JSONFILE);
+            if (statusImageDate) addDateImage(data.cardId, JSONFILE.value.items);
+        })
+        .catch(err => console.log('Có lỗi:', err));
+
+    return true;
 }
+
 module.exports = webHookTrello;
