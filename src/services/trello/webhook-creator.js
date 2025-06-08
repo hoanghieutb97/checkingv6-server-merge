@@ -1,0 +1,82 @@
+const axios = require('axios');
+const { KeyAndApi } = require('../../config/constants');
+const ngrok = require('ngrok');
+
+async function getExistingWebhooks() {
+    try {
+        const response = await axios.get(
+            `https://api.trello.com/1/tokens/${KeyAndApi.token}/webhooks`,
+            {
+                params: {
+                    key: KeyAndApi.apiKey
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error getting webhooks:', error.response ? error.response.data : error);
+        return [];
+    }
+}
+
+async function deleteWebhook(webhookId) {
+    try {
+        await axios.delete(
+            `https://api.trello.com/1/webhooks/${webhookId}`,
+            {
+                params: {
+                    key: KeyAndApi.apiKey,
+                    token: KeyAndApi.token
+                }
+            }
+        );
+        console.log(`Deleted webhook: ${webhookId}`);
+    } catch (error) {
+        console.error('Error deleting webhook:', error.response ? error.response.data : error);
+    }
+}
+
+async function create_Webhook_Trello() {
+    try {
+        // Kiểm tra webhook hiện có
+        const existingWebhooks = await getExistingWebhooks();
+        console.log('Existing webhooks:***********************');
+
+        // Xóa các webhook cũ nếu có
+        for (const webhook of existingWebhooks) {
+            await deleteWebhook(webhook.id);
+        }
+
+        // Chọn một trong hai cách dưới đây bằng cách comment/uncomment
+        // Cách 1: Dùng IP cố định (máy cũ)
+        // const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
+
+        // Cách 2: Dùng ngrok (máy mới)
+        const url = await ngrok.connect({
+            addr: KeyAndApi.port,
+            authtoken: KeyAndApi.ngrokToken
+        });
+        const callbackURL = `${url}/webhook/trello`;
+        console.log('Ngrok URL:', url);
+
+        console.log('Webhook URL:', callbackURL);
+
+        const response = await axios.post(
+            `https://api.trello.com/1/webhooks/`,
+            {
+                key: KeyAndApi.apiKey,
+                token: KeyAndApi.token,
+                callbackURL: callbackURL,
+                idModel: KeyAndApi.activeBoard
+            }
+        );
+
+        console.log('Webhook created:***********************');
+        return response.data;
+    } catch (error) {
+        console.error('Error creating webhook:', error.response ? error.response.data : error);
+        throw error;
+    }
+}
+
+module.exports = create_Webhook_Trello;

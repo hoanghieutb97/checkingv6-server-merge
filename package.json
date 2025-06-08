@@ -1,8 +1,12 @@
 {
+  "name": "trello-webhook-processor",
+  "version": "1.0.0",
+  "description": "Ứng dụng xử lý webhook từ Trello và tự động xử lý các file Excel đính kèm",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon yourScript.js",
-    "start": "pm2 start index.js",
-    "stop": "pm2 stop index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
