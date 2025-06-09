@@ -24,54 +24,8 @@ const KeyAndApi = {
     serverFolder: path.join(os.homedir(), 'Desktop', "ServerFile"),
 
     ngrokToken: '2yDyF3poD5a55lUrTNmXYb9F45i_3mwchzrrcfcWY5xSZNxCV',
-
 };
 
-const SortByProduct = {
-    variant_orderId_sku: [
-        "PC glass", "PC luminous", "PC led", "print metal", "thot 5mm",
-        "cut metal", "3d wood base", "thot den", "thot amazone",
-        "PC silicon", "FatherDayZirror", "dia nhua", "mica DZT Style",
-        "Photo Magnet", "Wooden Parterre", "photo frame lamp",
-        "Custom Acrylic Name Night Light pine", "Led Light Wood Base TMZ",
-        " Wooden Picture Frame Magnet", "Custom 2 Layered Acrylic Keychain", "Custom 2 Layered Art Piece",
-    ],
-    nameId_orderId_sku: [, "Leather Keychain", "2M Leather Keychain"],
-    width_orderId_sku: ["Suncatcher Art Piece",
-        "1 Layer Suncatcher Ornament",
-        "suncatcher",
-        "ornament mica 1M-Singer",
-        "tranh trang guong",
-
-        "Magnetic Car Visor Photo Clip",
-        "Custom Shape Photo Light Box",
-        "ornament mica 2M-Singer",
-        "ornament go 1M-Singer",
-        "ornament go 2M-Singer",
-        "2layer wood ornament",
-        "3L Shaker Ornament",
-        "5L Shaker Ornament",
-        "2 layer mix",
-        "Stained Glass Suncatcher",
-        "Christmas Tree Topper",
-        "Desk Name Plate Night Light",
-
-        "NEW transparent ORM 1M",
-        "NEW transparent ORM 1M no white",
-        "A Custom Shape Keychain With Charm",
-
-
-        "NEW transparent ORM 1M Wooden",
-        "NEW transparent ORM 2M",
-        "Stained Glass Suncatcher",
-        "Stained Glass Ornament type 2",
-        "Stained Glass Suncatcher - Type 2",
-        "Stained Glass Ornament",
-        "Custom Shape Fridge Magnet",
-
-    ]
-
-}
 const HWAll = {
     arrMica: ["keyChain mirror",
         "NEW transparent ORM 1M",
@@ -121,4 +75,5 @@ const HWAll = {
     ],
     arrNauBan: ["ornament su 1M", "ornament su 2M"]
 }
-module.exports = { HWAll, KeyAndApi, SortByProduct };
+
+module.exports = { HWAll, KeyAndApi };

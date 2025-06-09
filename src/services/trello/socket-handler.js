@@ -17,10 +17,12 @@ function sendNextCard(socket) {
         // Gửi card cho client
         socket.emit('newCard', {
             cardId: nextCard.cardId,
-            json: nextCard.json
+            json: nextCard.json,
+            sttDateImg: nextCard.sttDateImg
         });
         
         console.log(`Đã gửi card ${nextCard.cardId} cho client ${socket.id}`);
+        console.log(`Trạng thái ảnh của card: ${nextCard.sttDateImg ? 'Chỉ có file Excel' : 'Có cả file Excel và ảnh'}`);
         return true;
     }
     
@@ -52,6 +54,7 @@ function setupSocketIO(io) {
         // Xử lý khi client gửi trạng thái
         socket.on('clientState', async (data) => {
             console.log('Client state update:', socket.id, data);
+            console.log(`Trạng thái ảnh của card ${data.cardId}: ${data.sttDateImg ? 'Chỉ có file Excel' : 'Có cả file Excel và ảnh'}`);
             
             // Cập nhật trạng thái client
             const clientIndex = global.listIP.findIndex(c => c.id === socket.id);
@@ -59,7 +62,8 @@ function setupSocketIO(io) {
                 global.listIP[clientIndex] = {
                     ...global.listIP[clientIndex],
                     state: data.state,
-                    cardId: data.cardId
+                    cardId: data.cardId,
+                    sttDateImg: data.sttDateImg
                 };
             }
 
@@ -68,10 +72,14 @@ function setupSocketIO(io) {
                 try {
                     // Xóa card khỏi hàng chờ và thêm description
                     const descrpt = cal_getLinkFileTool(data.cardId, global.listTrello);
-                    if (descrpt) await addDescriptions(data.cardId, descrpt);
+                    if (descrpt) {
+                        console.log(`Thêm description cho card ${data.cardId}`);
+                        await addDescriptions(data.cardId, descrpt);
+                    }
 
                     const newListTrello = cal_ArrayDeleteCardId(data.cardId, global.listTrello);
                     global.listTrello = newListTrello;
+                    console.log(`Đã xóa card ${data.cardId} khỏi danh sách xử lý`);
 
                     if (data.err) {
                         // Xử lý lỗi

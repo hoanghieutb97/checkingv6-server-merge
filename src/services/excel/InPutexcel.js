@@ -1,9 +1,34 @@
-const { HWAll, KeyAndApi, SortByProduct } = require('../../config/constants');
+const { HWAll, KeyAndApi } = require('../../config/constants');
 const path = require('path');
 const fs = require('fs').promises;
 const axios = require('axios');
 const _ = require('lodash');
 const readXlsxFile = require('read-excel-file/node');
+const { getSortByProduct } = require('../sortByProduct');
+
+// Thay thế việc sử dụng SortByProduct từ constants
+let SortByProduct = {
+    variant_orderId_sku: [],
+    nameId_orderId_sku: [],
+    width_orderId_sku: []
+};
+
+async function initializeSortByProduct() {
+    try {
+        SortByProduct = await getSortByProduct();
+    } catch (error) {
+        console.error('Error initializing SortByProduct:', error);
+        // Không cần set lại giá trị mặc định vì đã có sẵn
+    }
+}
+
+// Gọi hàm khởi tạo khi module được load
+initializeSortByProduct().catch(console.error);
+
+// Thêm hàm để refresh data khi cần
+async function refreshSortByProduct() {
+    await initializeSortByProduct();
+}
 
 /**
  * Lấy dữ liệu GLLM từ API
@@ -34,7 +59,7 @@ async function FetchGLLM() {
 
 /**
  * Đọc và xử lý file Excel
- * @param {string} url - Đường dẫn file Excel
+ * @param {string|Buffer} url - Đường dẫn file Excel hoặc buffer data
  * @returns {Promise<Array>} Mảng dữ liệu đã được xử lý
  */
 async function FetchXLSX(url) {
@@ -283,4 +308,7 @@ async function InPutexcel(url) {
     }
 }
 
-module.exports = InPutexcel;
+module.exports = {
+    InPutexcel,
+    FetchXLSX
+};

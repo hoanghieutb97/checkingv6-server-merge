@@ -49,15 +49,15 @@ async function create_Webhook_Trello() {
 
         // Chọn một trong hai cách dưới đây bằng cách comment/uncomment
         // Cách 1: Dùng IP cố định (máy cũ)
-        // const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
+        const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
 
         // Cách 2: Dùng ngrok (máy mới)
-        const url = await ngrok.connect({
-            addr: KeyAndApi.port,
-            authtoken: KeyAndApi.ngrokToken
-        });
-        const callbackURL = `${url}/webhook/trello`;
-        console.log('Ngrok URL:', url);
+        // const url = await ngrok.connect({
+        //     addr: KeyAndApi.port,
+        //     authtoken: KeyAndApi.ngrokToken
+        // });
+        // const callbackURL = `${url}/webhook/trello`;
+        // console.log('Ngrok URL:', url);
 
         console.log('Webhook URL:', callbackURL);
 

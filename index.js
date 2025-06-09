@@ -20,6 +20,8 @@ const cardValidator = require('./src/services/trello/card-validator');
 const webhookCreator = require('./src/services/trello/webhook-creator');
 const getListTrelloAuto = require('./src/services/trello/getListTrelloAuto');
 const { startJSONServer, resetServer, startCheckingv4Ultimate, startDongBoFile, startTaiExcel } = require('./src/server/startServer');
+const { handleWebhook, initializeServer } = require('./src/services/trello/webhook');
+const connectDB = require('./src/config/db');
 
 // ==================== SERVER SETUP ====================
 const app = express();
@@ -43,13 +45,16 @@ global.listIP = [];
 global.listTrello = [];
 
 // ==================== INITIALIZATION ====================
+connectDB();
 cardValidator();  // xử lý lỗi up file và tạo thẻ
 getListTrelloAuto(); // xử lý lỗi không chạy tiếp
 webhookCreator();
 
+// Khởi động server và xử lý tất cả card
+initializeServer().catch(console.error);
+
 // ==================== API ROUTES ====================
 // Route để nhận webhook từ Trello
-const { handleWebhook } = require('./src/services/trello/webhook');
 app.post('/webhook/trello', handleWebhook);
 
 app.get('/webhook/trello', (req, res) => {
