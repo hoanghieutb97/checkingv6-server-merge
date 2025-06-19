@@ -15,13 +15,13 @@ const { KeyAndApi } = require('./src/config/constants');
 
 // Import local modules
 const cardMover = require('./src/services/trello/card-mover');
-const webhookHandler = require('./src/services/trello/webhook');
+const { handleWebhook, setIoInstance } = require('./src/services/trello/webhook');
 const cardValidator = require('./src/services/trello/card-validator');
 const webhookCreator = require('./src/services/trello/webhook-creator');
 const getListTrelloAuto = require('./src/services/trello/getListTrelloAuto');
 const { startJSONServer, resetServer, startCheckingv4Ultimate, startDongBoFile, startTaiExcel } = require('./src/server/startServer');
-const { handleWebhook, initializeServer } = require('./src/services/trello/webhook');
 const connectDB = require('./src/config/db');
+const { initializeSocket } = require('./src/services/trello/socket-handler');
 
 // ==================== SERVER SETUP ====================
 const app = express();
@@ -29,36 +29,49 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+const io = require('socket.io')(server);
 
 // Import và setup Socket.IO
-const setupSocketIO = require('./src/services/trello/socket-handler');
-setupSocketIO(io);
+initializeSocket(io);
+
+// Set io instance cho webhook
+setIoInstance(io);
 
 // ==================== GLOBAL VARIABLES ====================
 global.listIP = [];
 global.listTrello = [];
 
 // ==================== INITIALIZATION ====================
-connectDB();
-cardValidator();  // xử lý lỗi up file và tạo thẻ
-getListTrelloAuto(); // xử lý lỗi không chạy tiếp
-webhookCreator();
+async function initialize() {
+    try {
+        // 2. Kết nối database
+        await connectDB();     
+        // 3. Khởi động JSON Server
+        await startJSONServer();
+        // 4. Xử lý card và file
+        await cardValidator();
+        // 5. Tự động lấy card mới
+        await getListTrelloAuto();
+        // 6. Setup webhook Trello
+        await webhookCreator();
+      console.log('all start connected************');
 
-// Khởi động server và xử lý tất cả card
-initializeServer().catch(console.error);
+
+
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
+}
+
+// Chạy khởi tạo
+initialize();
 
 // ==================== API ROUTES ====================
 // Route để nhận webhook từ Trello
 app.post('/webhook/trello', handleWebhook);
 
 app.get('/webhook/trello', (req, res) => {
-    console.log('Webhook received! GET');
+ 
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');

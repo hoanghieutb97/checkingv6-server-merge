@@ -2,9 +2,7 @@ const path = require('path');
 const { KeyAndApi } = require('../config/constants');
 
 function cal_getLinkFileTool(cardId, array) {
-    
-    // console.log(cardId);
-    // console.log(array.map(item => item.cardId));
+
     var itemc = array.filter(item => (item.cardId == cardId))
     if (itemc.length > 0) {
         itemc = itemc[0];

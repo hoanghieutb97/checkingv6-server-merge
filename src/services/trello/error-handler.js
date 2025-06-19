@@ -17,7 +17,7 @@ function handleError(state, cardId, content, content2) {
         linkFile: content2
     };
 
-    axios.post('http://192.168.1.194:3333/' + type, postData)
+    axios.post('http://192.168.1.220:3333/' + type, postData)
         .then(response => {
             console.log('db.json: ', response.data);
         })

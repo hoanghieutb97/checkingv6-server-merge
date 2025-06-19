@@ -38,10 +38,10 @@ async function FetchGLLM() {
     try {
         const url = KeyAndApi.gllm;
         const response = await axios.get(url);
-        
+
         // Lọc bỏ các item không hợp lệ
-        const GLLM = response.data.filter(item => 
-            item.variant && item.variant !== "" && 
+        const GLLM = response.data.filter(item =>
+            item.variant && item.variant !== "" &&
             item.ProductType && item.ProductType !== ""
         );
 
@@ -65,7 +65,7 @@ async function FetchGLLM() {
 async function FetchXLSX(url) {
     try {
         const rows = await readXlsxFile(url);
-        
+
         // Map dữ liệu từ Excel
         const newSheet = rows.map(item => ({
             orderId: item[0],
@@ -145,7 +145,7 @@ function mapSheetGllm(sheet, gllm) {
 
     // Map sheet với GLLM
     return sheet.map(itemSheet => {
-        const filteredGllm = processedGllm.filter(itemGllm => 
+        const filteredGllm = processedGllm.filter(itemGllm =>
             _.intersection(itemGllm.ProductType, [trimlower(itemSheet.product)]).length !== 0 &&
             _.intersection(itemGllm.variant, [trimlower(itemSheet.variant)]).length !== 0
         );
@@ -159,7 +159,7 @@ function mapSheetGllm(sheet, gllm) {
             ...itemSheet,
             addGllm: true,
             ...pickProperties(firstFilteredItem, [
-                'nameId', 'box', 'button', 'direction', 
+                'nameId', 'box', 'button', 'direction',
                 'width', 'hight', 'amountFile', 'state', 'status'
             ])
         };
@@ -173,14 +173,14 @@ function mapSheetGllm(sheet, gllm) {
  */
 function dupItemsExcel(excel) {
     // Nhân bản items
-    const newSheet = excel.flatMap(item => 
+    const newSheet = excel.flatMap(item =>
         Array(item.Quantity).fill().map(() => ({ ...item }))
     );
 
     // Thêm số thứ tự
-    const sheetWithStt = newSheet.map((item, key) => ({ 
-        ...item, 
-        stt: key + 1 
+    const sheetWithStt = newSheet.map((item, key) => ({
+        ...item,
+        stt: key + 1
     }));
 
     // Tính QuantityAll
@@ -189,9 +189,9 @@ function dupItemsExcel(excel) {
         return acc;
     }, {});
 
-    return sheetWithStt.map(item => ({ 
-        ...item, 
-        QuantityAll: orderIdCount[item.orderId] 
+    return sheetWithStt.map(item => ({
+        ...item,
+        QuantityAll: orderIdCount[item.orderId]
     }));
 }
 
@@ -205,21 +205,21 @@ function sortSheet(sheet) {
 
     // Xử lý đặc biệt cho Acrylic Plaque
     if (product === "Acrylic Plaque") {
-        const arr5 = _.chunk(sheet.filter(item => 
+        const arr5 = _.chunk(sheet.filter(item =>
             ["A.Plaque6x8in", "DZT-Plaque6x8", "wood-Plaque6x8in", "2M-Plaque6x8inTMZ"].includes(item.nameId)
         ), 5);
 
-        const arr1 = sheet.filter(item => 
+        const arr1 = sheet.filter(item =>
             ["A.Plaque4x6in", "DZT-Plaque4x6", "wood-Plaque4x6in"].includes(item.nameId)
         );
 
         if (arr5.length > arr1.length) {
-            return _.flattenDeep(arr5.map((arr, i) => 
+            return _.flattenDeep(arr5.map((arr, i) =>
                 arr1[i] ? [...arr, arr1[i]] : arr
             ));
         }
 
-        return _.flattenDeep(arr1.map((arr, i) => 
+        return _.flattenDeep(arr1.map((arr, i) =>
             arr5[i] ? [...arr5[i], arr] : arr
         ));
     }
@@ -252,7 +252,7 @@ function sortSheet(sheet) {
 function checkungtoll(excel) {
     const state = _.uniq(excel.map(item => item.state));
     const status = _.uniq(excel.map(item => item.status));
-    
+
     if (state.length === 1 && status[0] === "1") return 1;
     if (state.length !== 1 && status.includes("1")) return 0;
     return 2;
@@ -287,20 +287,20 @@ async function InPutexcel(url) {
 
         // Tạo kết quả
         const fileName = path.basename(url);
-        const HW_All = HAllAndWAll(sortedExcel[0].button, HWAll);
-        
+
+
         const item = {
             items: sortedExcel,
             type: sortedExcel[0].button,
-            hAll: HW_All.hAll,
-            wAll: HW_All.wAll,
+            hAll: 1200,
+            wAll: 2400,
             fileName: fileName.replace(/\..+$/, ''),
             FileDesign: "~/Desktop/xoa"
         };
 
-        return { 
-            stt: checkungtoll(sortedExcel), 
-            value: item 
+        return {
+            stt: checkungtoll(sortedExcel),
+            value: item
         };
     } catch (error) {
         console.error('Error in InPutexcel:', error);

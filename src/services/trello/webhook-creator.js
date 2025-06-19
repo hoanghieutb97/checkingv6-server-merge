@@ -30,7 +30,7 @@ async function deleteWebhook(webhookId) {
                 }
             }
         );
-        console.log(`Deleted webhook: ${webhookId}`);
+      
     } catch (error) {
         console.error('Error deleting webhook:', error.response ? error.response.data : error);
     }
@@ -40,7 +40,6 @@ async function create_Webhook_Trello() {
     try {
         // Kiểm tra webhook hiện có
         const existingWebhooks = await getExistingWebhooks();
-        console.log('Existing webhooks:***********************');
 
         // Xóa các webhook cũ nếu có
         for (const webhook of existingWebhooks) {
@@ -59,7 +58,7 @@ async function create_Webhook_Trello() {
         // const callbackURL = `${url}/webhook/trello`;
         // console.log('Ngrok URL:', url);
 
-        console.log('Webhook URL:', callbackURL);
+      
 
         const response = await axios.post(
             `https://api.trello.com/1/webhooks/`,
@@ -71,7 +70,7 @@ async function create_Webhook_Trello() {
             }
         );
 
-        console.log('Webhook created:***********************');
+     
         return response.data;
     } catch (error) {
         console.error('Error creating webhook:', error.response ? error.response.data : error);

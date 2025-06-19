@@ -7,7 +7,7 @@ const FormData = require('form-data');
 const errorHandler = require('./error-handler');
 
 function addNewCardXlsx(linkFIle) {
-    // console.log("adddd............",linkFIle);
+ 
     var fileName = path.basename(linkFIle);
 
     axios.post(`https://api.trello.com/1/cards?key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`, {
@@ -17,7 +17,7 @@ function addNewCardXlsx(linkFIle) {
     })
         .then((response) => {
             uploadFileToTrello(response.data.id, linkFIle);
-            // console.log('Card created successfully. Card ID:', response.data.id);
+        
 
         })
         .catch((error) => {
@@ -38,7 +38,7 @@ async function uploadFileToTrello(cardId, activeFile) {
         const response = await axios.post(`https://api.trello.com/1/cards/${cardId}/attachments`, formData, {
             headers: formData.getHeaders(),
         });
-        // console.log('File uploaded successfully:', response.data);
+       
     } catch (error) {
         errorHandler("uploadFileToTrello", cardId, activeFile)
 

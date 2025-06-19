@@ -76,4 +76,14 @@ const HWAll = {
     arrNauBan: ["ornament su 1M", "ornament su 2M"]
 }
 
-module.exports = { HWAll, KeyAndApi };
+// Đường dẫn JSON Server
+const JSON_SERVER = {
+    PORT: 3333,
+    DB_PATH: './dbjson'
+};
+
+module.exports = {
+    HWAll,
+    KeyAndApi,
+    JSON_SERVER
+};

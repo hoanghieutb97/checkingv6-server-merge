@@ -1,28 +1,43 @@
-const { exec } = require('child_process');
+const jsonServer = require('json-server');
 const path = require('path');
+const net = require('net');
+const { JSON_SERVER } = require('../config/constants');
 
-function startJSONServer() {
-  // Chuyển vào thư mục cần thiết
-  const targetDir = 'F:\\dbjson';
-
-  // Lệnh khởi động JSON Server
-  const command = 'npx json-server --watch db.json --port 3333';
-
-  // Thực thi lệnh trong thư mục mục tiêu
-  exec(command, { cwd: targetDir }, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error starting JSON Server: ${error.message}`);
-      return;
-    }
-
-    if (stderr) {
-      console.error(`JSON Server stderr: ${stderr}`);
-      return;
-    }
-
-    console.log(`JSON Server stdout: ${stdout}`);
-  });
+// Hàm kiểm tra port có đang được sử dụng không
+function isPortInUse(port) {
+    return new Promise((resolve) => {
+        const server = net.createServer();
+        server.once('error', () => {
+            resolve(true); // Port đang được sử dụng
+        });
+        server.once('listening', () => {
+            server.close();
+            resolve(false); // Port chưa được sử dụng
+        });
+        server.listen(port);
+    });
 }
+
+async function startJSONServer() {
+    // Kiểm tra port 3333
+    const portInUse = await isPortInUse(JSON_SERVER.PORT);
+    if (portInUse) {
+     
+        return;
+    }
+
+    // Nếu port chưa được sử dụng, khởi động JSON Server
+    const server = jsonServer.create();
+    const router = jsonServer.router(path.join(__dirname, '../../dbjson/db.json'));
+    const middlewares = jsonServer.defaults();
+
+    server.use(middlewares);
+    server.use(router);
+    server.listen(JSON_SERVER.PORT, () => {
+   
+    });
+}
+
 function resetServer() {
   // Thư mục cần thiết để chạy Node server
   const resetServerDir = 'F:\\reset-server';
@@ -43,6 +58,7 @@ function resetServer() {
     console.log(`Node server stdout: ${stdout}`);
   });
 }
+
 function startCheckingv4Ultimate() {
   const checkingDir = 'F:\\checkingv4-ultimate';
   const npmCommand = 'npm start';
@@ -61,6 +77,7 @@ function startCheckingv4Ultimate() {
     console.log(`checkingv4-ultimate stdout: ${stdout}`);
   });
 }
+
 function startDongBoFile() {
   const dongBoFileDir = 'F:\\dongBoFile';
   const nodeCommand = 'node .';
