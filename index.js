@@ -22,41 +22,53 @@ const getListTrelloAuto = require('./src/services/trello/getListTrelloAuto');
 const { startJSONServer, resetServer, startCheckingv4Ultimate, startDongBoFile, startTaiExcel } = require('./src/server/startServer');
 const connectDB = require('./src/config/db');
 const { initializeSocket } = require('./src/services/trello/socket-handler');
+const { initializeGllmTags } = require('./src/services/gllm/fetch-gllm-tags');
 
 // ==================== SERVER SETUP ====================
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "*", // Cho phép tất cả origins
+    methods: ["GET", "POST"],
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-
-// Import và setup Socket.IO
-initializeSocket(io);
-
-// Set io instance cho webhook
-setIoInstance(io);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*", // Cho phép tất cả origins
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 // ==================== GLOBAL VARIABLES ====================
 global.listIP = [];
 global.listTrello = [];
+global.matchingTags = []; // Danh sách tags trùng tên với Trello
 
 // ==================== INITIALIZATION ====================
 async function initialize() {
     try {
-        // 2. Kết nối database
-        await connectDB();     
-        // 3. Khởi động JSON Server
+        // 1. Import và setup Socket.IO (đầu tiên)
+        initializeSocket(io);
+        // 2. Set io instance cho webhook (đầu tiên)
+        setIoInstance(io);
+        // 3. Kết nối database
+        await connectDB();
+        // 4. Khởi động JSON Server
         await startJSONServer();
-        // 4. Xử lý card và file
+        // 5. Fetch danh sách tags từ GLLM
+        await initializeGllmTags();
+        // 6. Xử lý card và file chưa up lên trello
         await cardValidator();
-        // 5. Tự động lấy card mới
+        // 7. Tự động lấy card mới (sau khi đã set io instance)
         await getListTrelloAuto();
-        // 6. Setup webhook Trello
+        // 8. Setup webhook Trello (sau khi đã set io instance)
         await webhookCreator();
-      console.log('all start connected************');
 
-
+        console.log('all start connected************');
+        console.log("global.matchingTags********************", global.matchingTags);
 
     } catch (error) {
         console.error('Error during initialization:', error);
@@ -71,7 +83,7 @@ initialize();
 app.post('/webhook/trello', handleWebhook);
 
 app.get('/webhook/trello', (req, res) => {
- 
+
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
@@ -82,4 +94,6 @@ app.get('/webhook/trello', (req, res) => {
 const PORT = KeyAndApi.port || 3999;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`Socket.IO server is ready for connections`);
+    console.log(`Server URL: http://192.168.1.220:${PORT}`);
 });

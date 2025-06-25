@@ -1,4 +1,4 @@
-const { HWAll, KeyAndApi } = require('../../config/constants');
+const { KeyAndApi } = require('../../config/constants');
 const path = require('path');
 const fs = require('fs').promises;
 const axios = require('axios');
@@ -130,6 +130,8 @@ function trimlower(item) {
  */
 function mapSheetGllm(sheet, gllm) {
     // Lọc và xử lý GLLM
+
+
     const processedGllm = gllm
         .filter(item => item.hight !== null)
         .map(item => ({
@@ -140,8 +142,11 @@ function mapSheetGllm(sheet, gllm) {
             ProductType: item.ProductType,
             variant: item.variant,
             button: item.button || "normal",
-            amountFile: (item.amountFile !== "1" && item.amountFile !== "2") ? "1" : item.amountFile
+            amountFile: (item.amountFile !== "1" && item.amountFile !== "2") ? "1" : item.amountFile,
+            chayTuDong: item.chayTuDong,
+            tag: item.tag
         }));
+
 
     // Map sheet với GLLM
     return sheet.map(itemSheet => {
@@ -160,7 +165,8 @@ function mapSheetGllm(sheet, gllm) {
             addGllm: true,
             ...pickProperties(firstFilteredItem, [
                 'nameId', 'box', 'button', 'direction',
-                'width', 'hight', 'amountFile', 'state', 'status'
+                'width', 'hight', 'amountFile', 'state', 'status',
+                'chayTuDong', 'tag'
             ])
         };
     });
@@ -287,7 +293,21 @@ async function InPutexcel(url) {
 
         // Tạo kết quả
         const fileName = path.basename(url);
+    
 
+        // Kiểm tra chayTuDong trong sortedExcel
+        const chayTuDongItems = sortedExcel.filter(item => item.chayTuDong);
+        const chayTuDong = chayTuDongItems.length > 0 && chayTuDongItems.every(item => item.chayTuDong === "1");
+
+        // Lấy tất cả các tag từ sortedExcel
+        const allTags = sortedExcel
+            .filter(item => item.tag) // Lọc các item có tag
+            .flatMap(item => item.tag.split(',')) // Tách tag bằng dấu phẩy
+            .map(tag => tag.trim()) // Loại bỏ khoảng trắng
+            .filter(tag => tag.length > 0); // Loại bỏ tag rỗng
+        
+        // Loại bỏ tag trùng lặp
+        const uniqueTags = [...new Set(allTags)];
 
         const item = {
             items: sortedExcel,
@@ -295,7 +315,9 @@ async function InPutexcel(url) {
             hAll: 1200,
             wAll: 2400,
             fileName: fileName.replace(/\..+$/, ''),
-            FileDesign: "~/Desktop/xoa"
+            FileDesign: "~/Desktop/xoa",
+            chayTuDong: chayTuDong,
+            tags: uniqueTags
         };
 
         return {

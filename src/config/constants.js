@@ -79,11 +79,20 @@ const HWAll = {
 // Đường dẫn JSON Server
 const JSON_SERVER = {
     PORT: 3333,
-    DB_PATH: './dbjson'
+    DB_PATH: './dbjson',
+    BASE_URL: 'http://192.168.1.220:3333',
+    CREATE_ENDPOINT: 'http://192.168.1.220:3333/create',
+    FILE_ENDPOINT: 'http://192.168.1.220:3333/file'
+};
+
+// Database configuration
+const DATABASE = {
+    MONGODB_URI: "mongodb+srv://hoanghieutb97:r8piz5uGp6OKcOGa@cluster0.elvs6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 };
 
 module.exports = {
     HWAll,
     KeyAndApi,
-    JSON_SERVER
+    JSON_SERVER,
+    DATABASE
 };

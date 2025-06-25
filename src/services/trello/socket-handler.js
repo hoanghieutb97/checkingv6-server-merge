@@ -1,12 +1,7 @@
 const { KeyAndApi } = require('../../config/constants');
-
-const cal_ArrayDeleteCardId = require('../../utils/array-delete-card');
-const addDescriptions = require('./description-adder');
 const { moveToRunDone, moveToRunErr } = require('./card-mover');
 const axios = require('axios');
-const path = require('path');
-const { log } = require('console');
-
+const { processCardTags } = require('./tag-matcher');
 // Lưu trạng thái các client
 const clients = new Map();
 
@@ -22,7 +17,7 @@ async function addDescriptionToCard(cardId, description) {
             key: KeyAndApi.apiKey,
             token: KeyAndApi.token
         });
-        
+
     } catch (error) {
         console.error(`Lỗi khi thêm description cho card ${cardId}:`, error.message);
     }
@@ -38,11 +33,13 @@ async function processCardRequest(socket, client) {
     }
 
     isProcessingCard = true;
- 
+
 
     try {
         const card = global.listTrello[0];
         if (card) {
+
+
             // Xóa card khỏi danh sách ngay lập tức để tránh race condition
             global.listTrello = global.listTrello.filter(c => c.cardId !== card.cardId);
 
@@ -55,6 +52,13 @@ async function processCardRequest(socket, client) {
             // Gửi card cho client
             socket.emit('newCard', card);
             console.log(`Đã gửi card ${card.cardId} cho client ${socket.id}`);
+
+            // Thêm tags phù hợp vào card ngay sau khi gửi cho client
+            if (card.tags && Array.isArray(card.tags)) {
+                await processCardTags(card.cardId, card.tags);
+            } else {
+                console.log(`Card ${card.cardId} không có tags hoặc tags không phải array`);
+            }
         } else {
             console.log(`Không có card nào trong danh sách cho client ${socket.id}`);
 
@@ -64,7 +68,7 @@ async function processCardRequest(socket, client) {
 
     } finally {
         isProcessingCard = false;
-       
+
 
         // Xử lý queue nếu có
         if (cardQueue.length > 0) {
@@ -89,10 +93,10 @@ async function checkAndMoveCard(cardId) {
 
         const card = response.data;
 
-  
+
         // Nếu card đang ở startList thì di chuyển đến listRunDone
         if (card.idList === KeyAndApi.startList) {
-        
+
             await moveToRunDone(cardId);
 
             // Tìm file xlsx trong attachments
@@ -106,7 +110,7 @@ async function checkAndMoveCard(cardId) {
                 await addDescriptionToCard(cardId, description);
 
             } else {
-                console.log('Không tìm thấy file xlsx trong attachments',cardId);
+                console.log('Không tìm thấy file xlsx trong attachments', cardId);
             }
         } else {
             console.log(`Card ${cardId} không ở startList, không di chuyển`);
@@ -135,7 +139,7 @@ async function checkAndMoveCardError(cardId) {
 
         // Nếu card đang ở startList thì di chuyển đến listRunErr
         if (card.idList === KeyAndApi.startList) {
-           
+
             await moveToRunErr(cardId);
         } else {
             console.log(`Card ${cardId} không ở startList, không di chuyển`);
@@ -147,27 +151,52 @@ async function checkAndMoveCardError(cardId) {
 
 // Function thông báo cho tất cả client ready khi có card mới
 function notifyClientsWhenCardsAvailable(io) {
+
+    
     if (global.listTrello && global.listTrello.length > 0) {
         console.log(`Có ${global.listTrello.length} card mới, thông báo cho các client ready`);
 
         for (const [socketId, client] of clients.entries()) {
+       
             if (client.status === 'ready') {
                 // Tìm socket instance
                 const socket = io.sockets.sockets.get(socketId);
                 if (socket) {
                     socket.emit('checkAwait');
+                    console.log(`Đã gửi checkAwait cho client ${socketId}`);
                 }
             }
         }
+    } else {
+        console.log('Không có card mới hoặc không có client ready');
+    }
+    
+}
+
+// Wrapper function để gọi notifyClientsWhenCardsAvailable mà không cần io parameter
+function notifyClientsWhenCardsAvailableGlobal() {
+    if (global.ioInstance) {
+        notifyClientsWhenCardsAvailable(global.ioInstance);
+    } else {
+        console.log('ioInstance chưa được khởi tạo');
     }
 }
 
 function initializeSocket(io) {
+    // Lưu io instance vào global để sử dụng từ mọi nơi
+    global.ioInstance = io;
+    
+    console.log('Socket.IO server initialized and listening for connections...');
+
     io.on('connection', (socket) => {
+        console.log(`New client connected: ${socket.id}`);
+     
+        
         // Thêm client mới với trạng thái ready
         clients.set(socket.id, { status: 'ready' });
+     
 
-    
+
 
         // Khi client sẵn sàng
         socket.on('awaitReady', () => {
@@ -182,7 +211,7 @@ function initializeSocket(io) {
 
         // Khi client xử lý xong card
         socket.on('cardDone', async (cardId) => {
-           
+
 
             clients.set(socket.id, { status: 'ready' });
             console.log(`Client ${socket.id} đã hoàn thành card ${cardId}`);
@@ -193,7 +222,7 @@ function initializeSocket(io) {
 
         // Khi client gặp lỗi khi xử lý card
         socket.on('cardError', async (cardId) => {
-        
+
             clients.set(socket.id, { status: 'ready' });
             console.log(`Client ${socket.id} gặp lỗi khi xử lý card ${cardId}`);
             socket.emit('checkAwait');
@@ -210,5 +239,6 @@ function initializeSocket(io) {
 
 module.exports = {
     initializeSocket,
-    notifyClientsWhenCardsAvailable
+    notifyClientsWhenCardsAvailable,
+    notifyClientsWhenCardsAvailableGlobal
 }; 

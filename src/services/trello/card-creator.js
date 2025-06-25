@@ -2,7 +2,6 @@ const { KeyAndApi } = require('../../config/constants');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const filePath = path.join(KeyAndApi.serverFolder, 'status.txt');
 const FormData = require('form-data');
 const errorHandler = require('./error-handler');
 

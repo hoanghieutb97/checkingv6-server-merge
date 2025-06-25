@@ -1,21 +1,21 @@
 const axios = require('axios');
 const { addNewCardXlsx, uploadFileToTrello } = require('./card-creator');
 
-const { KeyAndApi } = require('../../config/constants');
+const { KeyAndApi, JSON_SERVER } = require('../../config/constants');
 
 async function checkCreateCard() {
     try {
-        var listCreate = await axios.get('http://192.168.1.220:3333/create');
+        var listCreate = await axios.get(JSON_SERVER.CREATE_ENDPOINT);
         listCreate = listCreate.data;
      
         for (let i = 0; i < listCreate.length; i++) {
 
             await axios.get(`https://api.trello.com/1/search?idBoards=${KeyAndApi.activeBoard}&key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}&query=name:${listCreate[i].content}&modelTypes=cards`)
                 .then(async (response) => {
-                    axios.delete('http://192.168.1.220:3333/create/' + listCreate[i].id);
+                    axios.delete(JSON_SERVER.CREATE_ENDPOINT + '/' + listCreate[i].id);
                     if (response.data.cards.length > 0)  // tim thu, neu >0 la da co roi
                         await uploadFileToTrello(response.data.cards[0].id, listCreate[i].linkFile);
-                    else await addNewCardXlsx(listCreate[i].linkFile)
+                    else await addNewCardXlsx(listCreate[i].linkFile) 
                 })
                 .catch((error) => {
 
@@ -24,7 +24,7 @@ async function checkCreateCard() {
 
 
 
-        var listFile = await axios.get('http://192.168.1.220:3333/file');
+        var listFile = await axios.get(JSON_SERVER.FILE_ENDPOINT);
         listFile = listFile.data;
        
         for (let i = 0; i < listFile.length; i++) {
@@ -41,7 +41,7 @@ async function checkCreateCard() {
             if (!coFIleXlsx) {
                 await uploadFileToTrello(listFile[i].cardId, listFile[i].content)
             }
-            await axios.delete('http://192.168.1.220:3333/file/' + listFile[i].id);
+            await axios.delete(JSON_SERVER.FILE_ENDPOINT + '/' + listFile[i].id);
         }
     } catch (error) {
 

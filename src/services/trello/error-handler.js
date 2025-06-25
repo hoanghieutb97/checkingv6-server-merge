@@ -1,4 +1,4 @@
-const { KeyAndApi } = require('../../config/constants');
+const { KeyAndApi, JSON_SERVER } = require('../../config/constants');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +17,7 @@ function handleError(state, cardId, content, content2) {
         linkFile: content2
     };
 
-    axios.post('http://192.168.1.220:3333/' + type, postData)
+    axios.post(JSON_SERVER.BASE_URL + '/' + type, postData)
         .then(response => {
             console.log('db.json: ', response.data);
         })

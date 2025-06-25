@@ -28,10 +28,12 @@ async function getListTrelloAuto() {
             }
 
           
+
             const responseAll = await axios.get(
                 `https://api.trello.com/1/lists/${KeyAndApi.startList}/cards?key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`
             );
 
+          
             if (!responseAll?.data) {
                 throw new Error("Invalid response from Trello API");
             }
@@ -61,7 +63,7 @@ async function getListTrelloAuto() {
 
       
         // Lên lịch chạy lại sau 9 phút
-        setTimeout(getListTrelloAuto, 540000);
+        setTimeout(getListTrelloAuto, 60000);
     } catch (error) {
         console.error("\n=== Lỗi trong quá trình xử lý ===");
         console.error("Chi tiết lỗi:", error.message);
