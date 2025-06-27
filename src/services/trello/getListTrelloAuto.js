@@ -63,7 +63,7 @@ async function getListTrelloAuto() {
 
       
         // Lên lịch chạy lại sau 9 phút
-        setTimeout(getListTrelloAuto, 60000);
+        setTimeout(getListTrelloAuto, 600000);
     } catch (error) {
         console.error("\n=== Lỗi trong quá trình xử lý ===");
         console.error("Chi tiết lỗi:", error.message);

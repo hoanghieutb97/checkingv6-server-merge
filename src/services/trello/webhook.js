@@ -63,7 +63,7 @@ async function processCard(cardId) {
 
 
                 // Tạo file tạm thời
-                const tempFilePath = path.join(os.tmpdir(), `excel-${Date.now()}.xlsx`);
+                const tempFilePath = path.join(os.tmpdir(), xlsxAttachments[0].name);
                 await fs.writeFile(tempFilePath, excelResponse.data);
 
 
@@ -103,6 +103,7 @@ async function processCard(cardId) {
 
                     if (result.stt === 0) {
                         // Tách state và tạo card mới
+                        
 
                         await tachState(result.value.items, cardId, result.value.fileName);
                         return;

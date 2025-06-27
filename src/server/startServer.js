@@ -29,7 +29,9 @@ async function startJSONServer() {
     // Nếu port chưa được sử dụng, khởi động JSON Server
     const server = jsonServer.create();
     const router = jsonServer.router(path.join(__dirname, '../../dbjson/db.json'));
-    const middlewares = jsonServer.defaults();
+    const middlewares = jsonServer.defaults({
+        logger: false // Tắt hoàn toàn logger
+    });
 
     server.use(middlewares);
     server.use(router);

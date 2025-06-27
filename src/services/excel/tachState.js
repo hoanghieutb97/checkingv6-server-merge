@@ -107,9 +107,9 @@ function groupItemsByState(items) {
 function generateExcelFileName(item, count, state, random) {
     const date = new Date(item.dateItem);
     const formattedDate = date.getDate().toString().padStart(2, '0') + "-" +
-                         (date.getMonth() + 1).toString().padStart(2, '0') + "-" +
-                         date.getFullYear() + "-" +
-                         date.getHours().toString().padStart(2, '0') + "h";
+        (date.getMonth() + 1).toString().padStart(2, '0') + "-" +
+        date.getFullYear() + "-" +
+        date.getHours().toString().padStart(2, '0') + "h";
     return `${count}_${item.product}_${formattedDate}_${state}_${random}`;
 }
 
@@ -122,16 +122,16 @@ function generateExcelFileName(item, count, state, random) {
 async function createExcelFile(items, filePath) {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Sheet 1');
-    
+
     // Thiết lập các cột
     sheet.columns = EXCEL_COLUMNS;
-    
+
     // Thêm hàng header
     sheet.addRow(EXCEL_HEADER);
-    
+
     // Thêm dữ liệu
     items.forEach(item => sheet.addRow(item));
-    
+
     // Ghi file
     await workbook.xlsx.writeFile(filePath);
     return path.basename(filePath);
@@ -157,42 +157,44 @@ async function createTrelloCards(filePaths) {
 async function tachState(items, cardId, nameCard) {
     try {
         // Tạo thư mục chứa file tách
-        const containerPath = await createContainerDirectory(nameCard);
         
+
+        const containerPath = await createContainerDirectory(nameCard);
+
         // Nhóm items theo state
         const groupedByState = groupItemsByState(items);
         const allStates = Object.keys(groupedByState);
-        
+
         // Kiểm tra điều kiện chuyển sang list lỗi
         if (allStates.length === 1 && groupedByState[allStates[0]].status !== 1) {
             await moveToListError(cardId);
             return;
         }
-        
+
         // Xử lý từng state
         const filePaths = [];
         for (const state of allStates) {
             const stateItems = groupedByState[state];
             const firstItem = stateItems[0];
-            
+
             // Tạo tên file
             const random = nameCard.split('_').pop();
             const fileName = generateExcelFileName(firstItem, stateItems.length, state, random);
             const filePath = path.join(containerPath, fileName + '.xlsx');
-            
+
             // Tạo file Excel
             await createExcelFile(stateItems, filePath);
             filePaths.push(filePath);
         }
-        
+
         // Chuyển card gốc sang archive
         const archiveSuccess = await moveToListArchive(cardId);
-        
+
         // Tạo card Trello mới nếu chuyển archive thành công
         if (archiveSuccess) {
             await createTrelloCards(filePaths);
         }
-        
+
     } catch (error) {
         console.error('Lỗi trong quá trình tách state:', error);
         throw error;

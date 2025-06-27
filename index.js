@@ -26,6 +26,7 @@ const { initializeGllmTags } = require('./src/services/gllm/fetch-gllm-tags');
 
 // ==================== SERVER SETUP ====================
 const app = express();
+
 app.use(cors({
     origin: "*", // Cho phép tất cả origins
     methods: ["GET", "POST"],
