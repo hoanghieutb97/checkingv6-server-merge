@@ -96,5 +96,5 @@ const PORT = KeyAndApi.port || 3999;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Socket.IO server is ready for connections`);
-    console.log(`Server URL: http://192.168.1.220:${PORT}`);
+    console.log(`Server URL: http://192.168.1.240:${PORT}`);
 });

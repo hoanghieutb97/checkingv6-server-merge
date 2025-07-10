@@ -53,7 +53,7 @@ async function processCardRequest(socket, client) {
             socket.emit('newCard', card);
 
 
-            console.log(`Đã gửi card ${card.fileName} cho client ${socket.id}`);
+            
 
             // Thêm tags phù hợp vào card ngay sau khi gửi cho client
             if (card.tags && Array.isArray(card.tags)) {

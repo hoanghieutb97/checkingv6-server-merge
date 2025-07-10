@@ -3,11 +3,21 @@ const os = require('os');
 
 const filePath = path.join(os.homedir(), 'Desktop', "ServerFile", "xlsx");
 const KeyAndApi = {
-    listRunDone: "65d461446ba45af7d047e0b5",
-    listRunErr: "659802d136aaf9f9db745e0c",
-    listArchive: "65d48349181acc584b21736d",
-    startList: "659392077c1ff60559669e1f",
-    activeBoard: "619a55bb16b4572362761d0a",
+
+// demo
+    // listRunDone: "65d461446ba45af7d047e0b5",
+    // listRunErr: "659802d136aaf9f9db745e0c",
+    // listArchive: "65d48349181acc584b21736d",
+    // startList: "659392077c1ff60559669e1f",
+    // activeBoard: "619a55bb16b4572362761d0a",
+
+    listRunDone: "65d98f472c22ba72b148a5b8",
+    listRunErr: "65d98f4484ef9a8a0a55def0",
+    listArchive: "683a7de10d4831b53b5c86e4",
+    startList: "65d98f40df4df16ca1acfa3f",
+    activeBoard: "6332d4cb72468903b0b52fd4",
+
+
     port: 3999,
 
     // Cập nhật với thông tin API Key, Token và URL đính kèm cụ thể
@@ -80,9 +90,9 @@ const HWAll = {
 const JSON_SERVER = {
     PORT: 3333,
     DB_PATH: './dbjson',
-    BASE_URL: 'http://192.168.1.220:3333',
-    CREATE_ENDPOINT: 'http://192.168.1.220:3333/create',
-    FILE_ENDPOINT: 'http://192.168.1.220:3333/file'
+    BASE_URL: 'http://192.168.1.240:3333',
+    CREATE_ENDPOINT: 'http://192.168.1.240:3333/create',
+    FILE_ENDPOINT: 'http://192.168.1.240:3333/file'
 };
 
 // Database configuration

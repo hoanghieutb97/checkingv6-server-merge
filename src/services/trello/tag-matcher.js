@@ -25,7 +25,7 @@ async function processCardTags(cardId, tags) {
         const matchingTags = [];
         tags.forEach(tagName => {
             const matchingTag = global.matchingTags.find(globalTag => 
-                globalTag.nameTag && globalTag.nameTag.toLowerCase() === tagName.toLowerCase()
+                globalTag.nameTag && globalTag.nameTag.trim().toLowerCase() == tagName.trim().toLowerCase()
             );
             
             if (matchingTag) {

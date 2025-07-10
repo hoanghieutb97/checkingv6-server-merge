@@ -40,7 +40,7 @@ async function fetchGllmTags() {
 async function fetchTrelloTags() {
     try {
         console.log('Đang fetch Trello tags...');
-        const response = await axios.get(`https://api.trello.com/1/boards/${KeyAndApi.activeBoard}/labels?key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`);
+        const response = await axios.get(`https://api.trello.com/1/boards/${KeyAndApi.activeBoard}/labels?limit=1000&key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`);
         
         
         const trelloTags = response.data;
@@ -81,10 +81,10 @@ function findMatchingTags(gllmTags, trelloTags) {
     }
     
     const matchingTags = [];
-    
+
     gllmTags.forEach(gllmTag => {
         const matchingTrelloTag = trelloTags.find(trelloTag => 
-            trelloTag.name && trelloTag.name.toLowerCase() === gllmTag.toLowerCase()
+            trelloTag.name && trelloTag.name.toLowerCase() == gllmTag.toLowerCase()
         );
         
         if (matchingTrelloTag) {
