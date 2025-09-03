@@ -63,10 +63,12 @@ async function processCard(cardId) {
 
 
                 // Tạo file tạm thời
-                const tempFilePath = path.join(os.tmpdir(), xlsxAttachments[0].name);
+                // const tempFilePath = path.join(os.tmpdir(), xlsxAttachments[0].name);
+                const tempFilePath = path.join(os.homedir(), 'Desktop', 'ServerFile', 'xlsx', xlsxAttachments[0].name);
+
                 await fs.writeFile(tempFilePath, excelResponse.data);
 
-
+                console.log(tempFilePath);
 
                 try {
                     // Sử dụng InPutexcel để xử lý file
@@ -103,7 +105,7 @@ async function processCard(cardId) {
 
                     if (result.stt === 0) {
                         // Tách state và tạo card mới
-                        
+
 
                         await tachState(result.value.items, cardId, result.value.fileName);
                         return;

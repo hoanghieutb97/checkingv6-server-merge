@@ -21,8 +21,10 @@ const KeyAndApi = {
     port: 3999,
 
     // Cập nhật với thông tin API Key, Token và URL đính kèm cụ thể
-    apiKey: 'eaab65cdb6b3f930891953f93327e65e',
-    token: 'ATTA9890326a872fc0376b216d80d4582602fcf88703471fda6cb1b13f33b6c9702008C31C28',
+    apiKey: '622ec17c784493c10b02053fa175bc10',
+    token: 'ATTA548f6cc8c5ad0cab7c233e787abe8d8f333ac10f0fcd1d05b8d18d85f75cc2d9EF60E1BD',
+    // apiKey: 'eaab65cdb6b3f930891953f93327e65e',
+    // token: 'ATTA9890326a872fc0376b216d80d4582602fcf88703471fda6cb1b13f33b6c9702008C31C28',
     filePath: path.join(os.homedir(), 'Desktop', "ServerFile", "xlsx"),
     // gllm: 'https://sheetdb.io/api/v1/xvqhrhg4y9avq',
     gllm: 'https://sheet.best/api/sheets/e8876c80-1778-414d-ae68-af6b9ec1289c',

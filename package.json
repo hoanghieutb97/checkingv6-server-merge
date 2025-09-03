@@ -4,7 +4,7 @@
   "description": "Ứng dụng xử lý webhook từ Trello và tự động xử lý các file Excel đính kèm",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon --ignore dbjson/* index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

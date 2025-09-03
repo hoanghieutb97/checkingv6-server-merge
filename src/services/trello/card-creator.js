@@ -3,12 +3,13 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const FormData = require('form-data');
-const errorHandler = require('./error-handler');
+const handleError = require('./error-handler');
 
 function addNewCardXlsx(linkFIle) {
- 
-    var fileName = path.basename(linkFIle);
 
+    var fileName = path.basename(linkFIle);
+    console.log("fileName...........", fileName);
+    // if (fileName == "1_demo1_04-08-2025-01h_demo1_demo hieu.xlsx") handleError("addNewCardXlsx", "none", fileName, linkFIle)
     axios.post(`https://api.trello.com/1/cards?key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`, {
         name: fileName,
 
@@ -16,11 +17,11 @@ function addNewCardXlsx(linkFIle) {
     })
         .then((response) => {
             uploadFileToTrello(response.data.id, linkFIle);
-        
+
 
         })
         .catch((error) => {
-            errorHandler("addNewCardXlsx", "none", fileName, linkFIle)
+            handleError("addNewCardXlsx", "none", fileName, linkFIle)
             console.log(error);
         });
 
@@ -37,12 +38,12 @@ async function uploadFileToTrello(cardId, activeFile) {
         const response = await axios.post(`https://api.trello.com/1/cards/${cardId}/attachments`, formData, {
             headers: formData.getHeaders(),
         });
-       
+
     } catch (error) {
-        errorHandler("uploadFileToTrello", cardId, activeFile)
+        handleError("uploadFileToTrello", cardId, activeFile)
 
     }
 }
 
 
-module.exports = {addNewCardXlsx,uploadFileToTrello};
+module.exports = { addNewCardXlsx, uploadFileToTrello };

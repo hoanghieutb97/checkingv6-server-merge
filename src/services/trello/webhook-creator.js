@@ -41,10 +41,15 @@ async function create_Webhook_Trello() {
         // Kiểm tra webhook hiện có
         const existingWebhooks = await getExistingWebhooks();
 
-        // Xóa các webhook cũ nếu có
-        for (const webhook of existingWebhooks) {
-            await deleteWebhook(webhook.id);
+          
+        for (let i = 0; i < existingWebhooks.length; i++) {
+            if (existingWebhooks[i].callbackURL == ('http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello'))
+                await deleteWebhook(existingWebhooks[i].id);
         }
+        // Xóa các webhook cũ nếu có
+        // for (const webhook of existingWebhooks) {
+        //     await deleteWebhook(webhook.id);
+        // }
 
         // Chọn một trong hai cách dưới đây bằng cách comment/uncomment
         // Cách 1: Dùng IP cố định (máy cũ)
