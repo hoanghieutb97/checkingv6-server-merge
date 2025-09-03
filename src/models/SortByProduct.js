@@ -1,15 +1,6 @@
 const mongoose = require('mongoose');
 
-const sortByProductSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        enum: ['variant_orderId_sku', 'nameId_orderId_sku', 'width_orderId_sku'],
-        required: true
-    },
-    products: [{
-        type: String,
-        required: true
-    }]
-}, { collection: 'sort-by-product' });
+// Đơn giản hóa - không cần schema chi tiết
+const SortByProduct = mongoose.model('SortByProduct', {}, 'checkingc6-constant');
 
-module.exports = mongoose.model('SortByProduct', sortByProductSchema); 
+module.exports = SortByProduct; 

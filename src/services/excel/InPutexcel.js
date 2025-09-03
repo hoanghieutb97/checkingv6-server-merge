@@ -7,11 +7,7 @@ const readXlsxFile = require('read-excel-file/node');
 const { getSortByProduct } = require('../sortByProduct');
 
 // Thay thế việc sử dụng SortByProduct từ constants
-let SortByProduct = {
-    variant_orderId_sku: [],
-    nameId_orderId_sku: [],
-    width_orderId_sku: []
-};
+let SortByProduct = [];
 
 async function initializeSortByProduct() {
     try {
@@ -208,7 +204,7 @@ function dupItemsExcel(excel) {
  */
 function sortSheet(sheet) {
     const product = sheet[0].button;
-
+    let selectedPR = SortByProduct.filter(item => item.name === product)[0];
     // Xử lý đặc biệt cho Acrylic Plaque
     if (product === "Acrylic Plaque") {
         const arr5 = _.chunk(sheet.filter(item =>
@@ -228,26 +224,12 @@ function sortSheet(sheet) {
         return _.flattenDeep(arr1.map((arr, i) =>
             arr5[i] ? [...arr5[i], arr] : arr
         ));
+    } else if (selectedPR) return _.orderBy(sheet, [selectedPR.sortConfig.primary, selectedPR.sortConfig.secondary, selectedPR.sortConfig.tertiary], ['asc', 'asc', 'asc']).map((item, key) => ({ ...item, stt: key + 1 }));
+    else {
+        return_.orderBy(sheet, ['orderId', 'variant', 'sku'], ['asc', 'asc', 'asc']).map((item, key) => ({ ...item, stt: key + 1 }));
+
     }
 
-    // Sắp xếp theo các tiêu chí khác
-    if (SortByProduct.variant_orderId_sku.includes(product)) {
-        return _.orderBy(sheet, ['variant', 'orderId', 'sku'], ['asc', 'asc', 'asc'])
-            .map((item, key) => ({ ...item, stt: key + 1 }));
-    }
-
-    if (SortByProduct.nameId_orderId_sku.includes(product)) {
-        return _.orderBy(sheet, ['nameId', 'orderId', 'sku'], ['asc', 'asc', 'asc'])
-            .map((item, key) => ({ ...item, stt: key + 1 }));
-    }
-
-    if (SortByProduct.width_orderId_sku.includes(product)) {
-        return _.orderBy(sheet, ['width', 'orderId', 'sku'], ['asc', 'asc', 'asc'])
-            .map((item, key) => ({ ...item, stt: key + 1 }));
-    }
-
-    return _.orderBy(sheet, ['orderId', 'variant', 'sku'], ['asc', 'asc', 'asc'])
-        .map((item, key) => ({ ...item, stt: key + 1 }));
 }
 
 /**
@@ -293,7 +275,7 @@ async function InPutexcel(url) {
 
         // Tạo kết quả
         const fileName = path.basename(url);
-    
+
 
         // Kiểm tra chayTuDong trong sortedExcel
         const chayTuDongItems = sortedExcel.filter(item => item.chayTuDong);
@@ -305,7 +287,7 @@ async function InPutexcel(url) {
             .flatMap(item => item.tag.split(',')) // Tách tag bằng dấu phẩy
             .map(tag => tag.trim()) // Loại bỏ khoảng trắng
             .filter(tag => tag.length > 0); // Loại bỏ tag rỗng
-        
+
         // Loại bỏ tag trùng lặp
         const uniqueTags = [...new Set(allTags)];
 

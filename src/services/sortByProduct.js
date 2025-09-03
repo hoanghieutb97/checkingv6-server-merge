@@ -12,17 +12,13 @@ async function getSortByProduct() {
 
     try {
         const sortByProduct = await SortByProduct.find();
-        const result = {
-            variant_orderId_sku: sortByProduct.find(s => s.type === 'variant_orderId_sku')?.products || [],
-            nameId_orderId_sku: sortByProduct.find(s => s.type === 'nameId_orderId_sku')?.products || [],
-            width_orderId_sku: sortByProduct.find(s => s.type === 'width_orderId_sku')?.products || []
-        };
+       
 
         // Cập nhật cache
-        cachedSortByProduct = result;
+        cachedSortByProduct = sortByProduct;
         lastFetchTime = Date.now();
         
-        return result;
+        return sortByProduct;
     } catch (error) {
         console.error('Error getting SortByProduct:', error);
         // Nếu có cache cũ, dùng cache cũ
