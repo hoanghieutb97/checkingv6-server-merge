@@ -5,7 +5,7 @@ const path = require('path');
 const FormData = require('form-data');
 
 function addDateImage(cardId, items) {
-  
+
 
   // Kiểm tra items
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -42,38 +42,48 @@ function addDateImage(cardId, items) {
   }
 
   var nameFile = findEarliestAndFormat(listDate);
- 
+
   // Xử lý partner
-  var listKhach = items.map(item => {
-    if (!item.partner) {
-  
+  var lisUS = items.map(item => {
+    if (!item.orderId) {
+
       return "";
     }
     return item.partner.toLowerCase();
   }).filter(Boolean);
 
- 
+  var listKhach = items.map(item => {
+    if (!item.partner) {
+
+      return "";
+    }
+    return item.partner.toLowerCase();
+  }).filter(Boolean);
+
+
 
   var coKenNguyen = listKhach.includes("pwser1411");
+  var coFKO = lisUS.some(khach => khach.startsWith("fko"));
   var coNCE = listKhach.includes("pwser115");
   var coCaHai = ["pwser1411", "pwser115"].every(item => listKhach.includes(item));
 
   // Xử lý orderId
   var listOrderID = items.map(item => {
     if (!item.orderId) {
-  
+
       return "";
     }
     return item.orderId.toLowerCase();
   }).filter(Boolean);
 
- 
+
 
   var hasPWT = listOrderID.some(orderId => orderId.substring(0, 3).toLowerCase() === "pwt");
 
   var folerderName = "dateImage";
   if (coNCE || hasPWT) folerderName = "dateUT";
   if (coKenNguyen || coCaHai) folerderName = "dateKen";
+  if (coFKO) folerderName = "dateUS";
 
 
   const activeFile = path.join(KeyAndApi.serverFolder, folerderName, nameFile + ".jpg");
@@ -102,7 +112,7 @@ async function uploadFileToTrello(cardId, activeFile) {
         headers: formData.getHeaders(),
       }
     );
- 
+
     return true;
   } catch (error) {
     console.error('Lỗi khi thêm ảnh vào card:', cardId, error.message);

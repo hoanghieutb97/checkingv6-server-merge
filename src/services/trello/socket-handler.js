@@ -193,7 +193,7 @@ function initializeSocket(io) {
     console.log('Socket.IO server initialized and listening for connections...');
 
     io.on('connection', (socket) => {
-        console.log(`New client connected: ${socket.id}`);
+        // console.log(`New client connected: ${socket.id}`);
 
 
         // Thêm client mới với trạng thái ready

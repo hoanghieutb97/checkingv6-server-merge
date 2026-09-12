@@ -179,7 +179,7 @@ async function handleWebhook(req, res) {
                 const cardResponse = await axios.get(
                     `https://api.trello.com/1/cards/${cardId}?key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`
                 );
-
+                // console.log("cardResponse.........", cardResponse);
                 // Nếu card không nằm trong startList, bỏ qua
                 if (cardResponse.data.idList !== KeyAndApi.startList) {
 
@@ -191,7 +191,7 @@ async function handleWebhook(req, res) {
                     await processCard(cardId);
                 }
             } catch (error) {
-                console.error('Lỗi khi kiểm tra trạng thái card:', error);
+                console.error('Lỗi khi kiểm tra trạng thái card:', "error");
                 return res.status(500).send('Internal Server Error');
             }
         }

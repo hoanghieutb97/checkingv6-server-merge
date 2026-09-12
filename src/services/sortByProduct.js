@@ -11,13 +11,13 @@ async function getSortByProduct() {
     }
 
     try {
-        const sortByProduct = await SortByProduct.find();
-       
+        const sortByProduct = await SortByProduct.find().lean();;
+
 
         // Cập nhật cache
         cachedSortByProduct = sortByProduct;
         lastFetchTime = Date.now();
-        
+
         return sortByProduct;
     } catch (error) {
         console.error('Error getting SortByProduct:', error);

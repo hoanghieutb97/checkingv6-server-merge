@@ -39,7 +39,7 @@ async function fetchGllmTags() {
  */
 async function fetchTrelloTags() {
     try {
-        console.log('Đang fetch Trello tags...');
+        
         const response = await axios.get(`https://api.trello.com/1/boards/${KeyAndApi.activeBoard}/labels?limit=1000&key=${KeyAndApi.apiKey}&token=${KeyAndApi.token}`);
         
         
@@ -51,7 +51,7 @@ async function fetchTrelloTags() {
             return [];
         }
         
-        console.log(`Đã fetch được ${trelloTags.length} Trello tags`);
+        
         return trelloTags;
     } catch (error) {
         console.error('Error fetching Trello tags:', error.message);

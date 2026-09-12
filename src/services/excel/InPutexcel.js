@@ -7,19 +7,19 @@ const readXlsxFile = require('read-excel-file/node');
 const { getSortByProduct } = require('../sortByProduct');
 
 // Thay thế việc sử dụng SortByProduct từ constants
-let SortByProduct = [];
+// let SortByProduct = [];
 
-async function initializeSortByProduct() {
-    try {
-        SortByProduct = await getSortByProduct();
-    } catch (error) {
-        console.error('Error initializing SortByProduct:', error);
-        // Không cần set lại giá trị mặc định vì đã có sẵn
-    }
-}
+// async function initializeSortByProduct() {
+//     try {
+//         SortByProduct = await getSortByProduct();
+//     } catch (error) {
+//         console.error('Error initializing SortByProduct:', error);
+//         // Không cần set lại giá trị mặc định vì đã có sẵn
+//     }
+// }
 
-// Gọi hàm khởi tạo khi module được load
-initializeSortByProduct().catch(console.error);
+// // Gọi hàm khởi tạo khi module được load
+// initializeSortByProduct().catch(console.error);
 
 // Thêm hàm để refresh data khi cần
 async function refreshSortByProduct() {
@@ -202,9 +202,11 @@ function dupItemsExcel(excel) {
  * @param {Array} sheet - Mảng cần sắp xếp
  * @returns {Array} Mảng đã được sắp xếp
  */
-function sortSheet(sheet) {
-    const product = sheet[0].button;
-    let selectedPR = SortByProduct.filter(item => item.name === product)[0];
+async function sortSheet(sheet) {
+    let SortByProduct = await getSortByProduct();
+    const product = sheet[0].button ? sheet[0].button : "normal";
+    let selectedPR = SortByProduct.filter(item => item.name.toLowerCase().trim() === product.toLowerCase().trim())[0];
+
     // Xử lý đặc biệt cho Acrylic Plaque
     if (product === "Acrylic Plaque") {
         const arr5 = _.chunk(sheet.filter(item =>
@@ -226,7 +228,7 @@ function sortSheet(sheet) {
         ));
     } else if (selectedPR) return _.orderBy(sheet, [selectedPR.sortConfig.primary, selectedPR.sortConfig.secondary, selectedPR.sortConfig.tertiary], ['asc', 'asc', 'asc']).map((item, key) => ({ ...item, stt: key + 1 }));
     else {
-        return_.orderBy(sheet, ['orderId', 'variant', 'sku'], ['asc', 'asc', 'asc']).map((item, key) => ({ ...item, stt: key + 1 }));
+        return _.orderBy(sheet, ['orderId', 'variant', 'sku'], ['asc', 'asc', 'asc']).map((item, key) => ({ ...item, stt: key + 1 }));
 
     }
 
@@ -271,8 +273,8 @@ async function InPutexcel(url) {
         // Xử lý dữ liệu
         const excel = mapSheetGllm(sheet, gllm);
         const duplicatedExcel = dupItemsExcel(excel);
-        const sortedExcel = sortSheet(duplicatedExcel);
-
+        const sortedExcel = await sortSheet(duplicatedExcel);
+        // console.log("sortedExcel", sortedExcel);
         // Tạo kết quả
         const fileName = path.basename(url);
 

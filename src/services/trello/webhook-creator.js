@@ -12,6 +12,7 @@ async function getExistingWebhooks() {
                 }
             }
         );
+        // console.log("webhookkkkkkkkkk", response);
         return response.data;
     } catch (error) {
         console.error('Error getting webhooks:', error.response ? error.response.data : error);
@@ -30,7 +31,7 @@ async function deleteWebhook(webhookId) {
                 }
             }
         );
-      
+
     } catch (error) {
         console.error('Error deleting webhook:', error.response ? error.response.data : error);
     }
@@ -41,9 +42,9 @@ async function create_Webhook_Trello() {
         // Kiểm tra webhook hiện có
         const existingWebhooks = await getExistingWebhooks();
 
-          
+
         for (let i = 0; i < existingWebhooks.length; i++) {
-            if (existingWebhooks[i].callbackURL == ('http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello'))
+            if (existingWebhooks[i].callbackURL == ('210.245.53.96:' + KeyAndApi.port + '/webhook/trello'))
                 await deleteWebhook(existingWebhooks[i].id);
         }
         // Xóa các webhook cũ nếu có
@@ -53,7 +54,8 @@ async function create_Webhook_Trello() {
 
         // Chọn một trong hai cách dưới đây bằng cách comment/uncomment
         // Cách 1: Dùng IP cố định (máy cũ)
-        const callbackURL = 'http://101.99.6.103:' + KeyAndApi.port + '/webhook/trello';
+        // const callbackURL = 'servervn.hehehehehehehe.io.vn/webhook/trello';
+        const callbackURL = '210.245.53.96:' + KeyAndApi.port + '/webhook/trello';
 
         // Cách 2: Dùng ngrok (máy mới)
         // const url = await ngrok.connect({
@@ -63,7 +65,7 @@ async function create_Webhook_Trello() {
         // const callbackURL = `${url}/webhook/trello`;
         // console.log('Ngrok URL:', url);
 
-      
+
 
         const response = await axios.post(
             `https://api.trello.com/1/webhooks/`,
@@ -75,7 +77,7 @@ async function create_Webhook_Trello() {
             }
         );
 
-     
+
         return response.data;
     } catch (error) {
         console.error('Error creating webhook:', error.response ? error.response.data : error);
